@@ -151,7 +151,7 @@ class Play extends Phaser.Scene {
               this.fireText.setPosition(this.p1Rocket.x, this.p1Rocket.y - 20)
               this.fireText.setAlpha(1)
 
-              this.time.delayedCall(500, ()=> {
+              this.time.delayedCall(1000, ()=> {
                 this.fireText.setAlpha(0)
               }, null, this)
           }
