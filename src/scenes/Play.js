@@ -56,6 +56,18 @@ class Play extends Phaser.Scene {
             align: 'center' }
       ).setOrigin(0.5);
   
+      //Fire Text
+        this.fireText = this.add.text(
+        this.p1Rocket.x, this.p1Rocket.y - 20,
+        'Fire!',
+        {
+          fontFamily: 'Courier',
+          fontSize: '14px',
+          color: '#FF0000',
+          align: 'center'
+
+        }
+      ).setOrigin(0.5).setAlpha(0);
 
 
         this.p1Score = 0
@@ -126,6 +138,14 @@ class Play extends Phaser.Scene {
           if (Phaser.Input.Keyboard.JustDown(keyFIRE) && !this.p1Rocket.isFiring) {
               this.p1Rocket.isFiring = true;
               this.p1Rocket.sfxShot.play();
+
+              //Fire Text
+              this.fireText.setPosition(this.p1Rocket.x, this.p1Rocket.y - 20)
+              this.fireText.setAlpha(1)
+
+              this.time.delayedCall(500, ()=> {
+                this.fireText.setAlpha(0)
+              }, null, this)
           }
       } else if (this.activePlayer === 2) {
           // Player 2 controls
@@ -138,16 +158,26 @@ class Play extends Phaser.Scene {
           if (Phaser.Input.Keyboard.JustDown(keyFIRE2) && !this.p1Rocket.isFiring) {
               this.p1Rocket.isFiring = true;
               this.p1Rocket.sfxShot.play();
+
+              this.fireText.setPosition(this.p1Rocket.x, this.p1Rocket.y - 20)
+              this.fireText.setAlpha(1) // Fire text
+
+
+              this.time.delayedCall(500, () => {
+                this.fireText.setAlpha(0)
+              }, null, this)
           }
       }
-  
+    
           // Rocket firing logic
           if (this.p1Rocket.isFiring && this.p1Rocket.y >= borderUISize * 3 + borderPadding) {
               this.p1Rocket.y -= this.p1Rocket.moveSpeed;
           }
   
           if (this.p1Rocket.y <= borderUISize * 3 + borderPadding) {
-              this.p1Rocket.reset();
+            console.log('Missed a ship. Subtracting time.')
+            this.clock.delay -= 5000 //for time subtraction on every shot missed 5secs
+            this.p1Rocket.reset();
           }
   
           this.ship01.update();
@@ -213,6 +243,10 @@ class Play extends Phaser.Scene {
         
         this.p1Score += ship.points
         this.scoreLeft.text = this.p1Score
+
+        let timeGain = ship.texture.key === 'smallShip' ? 10 : 2; // Small ship gives 10 seconds, others 2 seconds
+        this.clock.delay += timeGain * 1000 // Add time in milliseconds
+        console.log(`Hit ${ship.texture.key}. Time added: ${timeGain} seconds`)
 
         this.sound.play('sfx-explosion')
       }
